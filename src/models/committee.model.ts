@@ -47,17 +47,14 @@ const CommitteeSchema: Schema<Committee> = new Schema({
     heads: [{
         type: Schema.Types.ObjectId,
         ref: "Volunteer",
-        required: true,
     }],
     subheads: [{
         type: Schema.Types.ObjectId,
         ref: "Volunteer",
-        required: true,
     }],
     volunteers: [{
         type: Schema.Types.ObjectId,
         ref: "Volunteer",
-        required: true,
     }]
 });
 
