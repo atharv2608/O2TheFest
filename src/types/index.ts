@@ -1,4 +1,5 @@
 export enum Course {
+    BSC = "BSC",
     BSC_CS = "BSC-CS",
     BSC_IT = "BSC-IT",
     BCOM = "BCOM",
