@@ -73,7 +73,8 @@ export async function POST(request: Request) {
       `${rollNo?.toString().toLowerCase()}-${Date.now()}${path.extname(
         file.name
       )}`,
-      file.type
+      file.type,
+      "id-cards"
     );
 
     //creating new volunteer
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
     });
 
     //Selecting required fields from created volunteer and sending response
-    const createdVolunteer = await VolunteerModel.findById(newVolunteer._id).select("firstName lastName email rollNo preferredCommittees");
+    const createdVolunteer = await VolunteerModel.findById(newVolunteer._id).select("firstName lastName email rollNo preferredCommittees collegeId");
 
     if (!createdVolunteer)
       return sendResponse(false, "Failed to create volunteer", 500);

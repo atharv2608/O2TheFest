@@ -13,7 +13,8 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
 export async function uploadFileToS3(
   file: Buffer,
   fileName: string,
-  mimeType: string
+  mimeType: string,
+  directory: string = "uploads"
 ) {
   if (!ALLOWED_FILE_TYPES.includes(mimeType)) {
     throw new Error("Invalid file type. Only JPG, JPEG, and PNG are allowed.");
@@ -23,10 +24,24 @@ export async function uploadFileToS3(
     throw new Error("File size exceeds the 2MB limit.");
   }
 
+  // Sanitize directory and filename
+  const sanitizedDirectory = directory
+    .replace(/[^a-z0-9-_]/gi, "")
+    .toLowerCase()
+    .trim();
+
+  const sanitizedFileName = fileName
+    .replace(/[^a-z0-9.-]/gi, "")
+    .toLowerCase()
+    .trim();
+
+  // Construct full key with directory
+  const fullKey = `${sanitizedDirectory}/${sanitizedFileName}`;
+
   try {
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME as string,
-      Key: fileName,
+      Key: fullKey,
       Body: file,
       ContentType: mimeType,
     };
@@ -35,7 +50,7 @@ export async function uploadFileToS3(
     await s3Client.send(command);
 
     //constructs the object url
-    const objectURL = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    const objectURL = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fullKey}`;
 
     return objectURL;
   } catch (error) {
