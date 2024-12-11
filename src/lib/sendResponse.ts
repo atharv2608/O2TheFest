@@ -1,12 +1,13 @@
-import { NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 
-  export function sendResponse(
-    res: NextApiResponse,
-    success: boolean,
-    message: string,
-    statusCode: number = success ? 200 : 400, // Default status code
-    data?: object
-  ) {
-    res.status(statusCode).json({ success, message, data });
-  }
-  
+export function sendResponse(
+  success: boolean,
+  message: string,
+  statusCode: number = success ? 200 : 400, // Default status code
+  data?: object
+) {
+  return NextResponse.json(
+    { success, message, data },
+    { status: statusCode }
+  );
+}

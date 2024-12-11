@@ -58,7 +58,8 @@ const VolunteerSchema: Schema<Volunteer> = new Schema({
     },
     rollNo:{
         type: String,
-        required: [true, "Roll No is required"]
+        required: [true, "Roll No is required"],
+        lowercase: true
     },
     preferredCommittees: [{ 
         type: Schema.Types.ObjectId,
