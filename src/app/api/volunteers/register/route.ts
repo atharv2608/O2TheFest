@@ -1,12 +1,13 @@
-import { uploadFileToS3 } from "@/lib/awsS3";
+import dbConnect from "@/lib/dbConnect";
 import { sendResponse } from "@/lib/sendResponse";
 import VolunteerModel from "@/models/volunteer.model";
 import { volunteerSchema } from "@/schema/volunteerSchema";
+import { uploadFileToCloudinary } from "@/utils/cloudinary";
 import path from "path";
 
 export async function POST(request: Request) {
+  await dbConnect();
   try {
-
     //Extracting Form Data
     const formData = await request.formData();
 
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
     });
 
     if (existingVolunteer)
-      sendResponse(
+      return sendResponse(
         false,
         "Volunteer with similar contact details or roll no already exists",
         409
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
 
     //Creating buffer of the Id image and uploading it to S3 bucket
     const buffer = Buffer.from(await file.arrayBuffer());
-    const objectURL = await uploadFileToS3(
+    const objectURL = await uploadFileToCloudinary(
       buffer,
       `${rollNo?.toString().toLowerCase()}-${Date.now()}${path.extname(
         file.name
@@ -98,7 +99,9 @@ export async function POST(request: Request) {
     });
 
     //Selecting required fields from created volunteer and sending response
-    const createdVolunteer = await VolunteerModel.findById(newVolunteer._id).select("firstName lastName email rollNo preferredCommittees collegeId");
+    const createdVolunteer = await VolunteerModel.findById(
+      newVolunteer._id
+    ).select("firstName lastName email rollNo preferredCommittees collegeId");
 
     if (!createdVolunteer)
       return sendResponse(false, "Failed to create volunteer", 500);
