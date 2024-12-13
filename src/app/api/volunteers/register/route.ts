@@ -4,6 +4,9 @@ import VolunteerModel from "@/models/volunteer.model";
 import { volunteerSchema } from "@/schema/volunteerSchema";
 import { uploadFileToCloudinary } from "@/config/cloudinary";
 import path from "path";
+import SuperUserModel from "@/models/superuser.model";
+import ClModel from "@/models/cl.model";
+import AclModel from "@/models/acl.model";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -66,6 +69,20 @@ export async function POST(request: Request) {
         "Volunteer with similar contact details or roll no already exists",
         409
       );
+
+    const [superUser, clUser, aclUser] = await Promise.all([
+      SuperUserModel.findOne({ $or: [{ email }, { phone }] }),
+      ClModel.findOne({ $or: [{ email }, { phone }] }),
+      AclModel.findOne({ $or: [{ email }, { phone }] }),
+    ]);
+
+    if (superUser || clUser || aclUser) {
+      return sendResponse(
+        false,
+        "Similar email or phone already exists in the system",
+        409
+      );
+    }
 
     //Creating buffer of the Id image and uploading it to S3 bucket
     const buffer = Buffer.from(await file.arrayBuffer());
