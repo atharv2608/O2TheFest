@@ -1,16 +1,16 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcrypt";
-export interface Superuser extends Document {
+export interface SuperUser extends Document {
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
-    role: "superuser";
+    role: "superUser";
     canManageSuperUsers: boolean;
     password: string;
 }
 
-const SuperuserSchema: Schema<Superuser> = new Schema({
+const SuperUserSchema: Schema<SuperUser> = new Schema({
     firstName: {
         type: String,
         required: [true, "First Name is required"],
@@ -36,8 +36,8 @@ const SuperuserSchema: Schema<Superuser> = new Schema({
     role: {
         type: String,
         required: true,
-        default: "superuser", // Default is superuser, no need to change
-        enum: ["superuser"], // Role is strictly "superuser"
+        default: "superUser", // Default is superuser, no need to change
+        enum: ["superUser"], // Role is strictly "superuser"
     },
     canManageSuperUsers: {
         type: Boolean,
@@ -51,17 +51,17 @@ const SuperuserSchema: Schema<Superuser> = new Schema({
     },
 });
 
-SuperuserSchema.pre('save', async function(next){
+SuperUserSchema.pre('save', async function(next){
     if(this.isModified('password')){
         this.password = await bcrypt.hash(this.password, 10);
     }
     next();
 });
 
-SuperuserSchema.methods.isPasswordCorrect = async function(password: string): Promise<boolean> {
+SuperUserSchema.methods.isPasswordCorrect = async function(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
 }
 
-const SuperUserModel = (mongoose.models.Superuser as mongoose.Model<Superuser>) || mongoose.model<Superuser>("Superuser", SuperuserSchema);
+const SuperUserModel = (mongoose.models.SuperUser as mongoose.Model<SuperUser>) || mongoose.model<SuperUser>("SuperUser", SuperUserSchema);
 
 export default SuperUserModel;

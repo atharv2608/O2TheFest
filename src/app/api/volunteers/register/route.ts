@@ -4,7 +4,7 @@ import VolunteerModel from "@/models/volunteer.model";
 import { volunteerSchema } from "@/schema/volunteerSchema";
 import { uploadFileToCloudinary } from "@/config/cloudinary";
 import path from "path";
-import SuperUserModel from "@/models/superuser.model";
+import SuperUserModel from "@/models/superUser.model";
 import ClModel from "@/models/cl.model";
 import AclModel from "@/models/acl.model";
 

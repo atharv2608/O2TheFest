@@ -20,7 +20,7 @@ export enum Year {
 }
 
 export enum Role {
-    SUPERUSER = "superuser",
+    SUPERUSER = "superUser",
     HOD = "hod",
     HEAD = "head",
     ADMIN_HEAD = "admin-head",

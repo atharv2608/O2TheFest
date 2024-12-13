@@ -52,7 +52,6 @@ const AclSchema: Schema<Acl> = new Schema({
   },
 });
 
-// Pre-save hook to hash password before saving (similar to Superuser model)
 
 const AclModel = (mongoose.models.Acl as mongoose.Model<Acl>) || mongoose.model<Acl>("Acl", AclSchema);
 
