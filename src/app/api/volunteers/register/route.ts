@@ -2,7 +2,7 @@ import dbConnect from "@/lib/dbConnect";
 import { sendResponse } from "@/lib/sendResponse";
 import VolunteerModel from "@/models/volunteer.model";
 import { volunteerSchema } from "@/schema/volunteerSchema";
-import { uploadFileToCloudinary } from "@/utils/cloudinary";
+import { uploadFileToCloudinary } from "@/config/cloudinary";
 import path from "path";
 
 export async function POST(request: Request) {
