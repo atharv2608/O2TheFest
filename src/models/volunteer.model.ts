@@ -20,6 +20,7 @@ export interface Volunteer extends Document{
     approved: boolean;
     rejected: boolean;
     password: string;
+    isPasswordCorrect(password: string): Promise<boolean>
 }
 
 const VolunteerSchema: Schema<Volunteer> = new Schema({

@@ -8,6 +8,7 @@ export interface SuperUser extends Document {
     role: "superUser";
     canManageSuperUsers: boolean;
     password: string;
+    isPasswordCorrect(password: string): Promise<boolean>;
 }
 
 const SuperUserSchema: Schema<SuperUser> = new Schema({
