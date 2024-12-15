@@ -1,10 +1,10 @@
 import dbConnect from "@/lib/dbConnect";
-import SuperUserModel, { SuperUser } from "@/models/superUser.model";
+import SuperUserModel from "@/models/superuser.model";
 import VolunteerModel from "@/models/volunteer.model";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-export const internalUserAuthOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -26,7 +26,7 @@ export const internalUserAuthOptions: NextAuthOptions = {
 
           if (superUser) {
             const isPasswordCorrect = await superUser.isPasswordCorrect(
-              credentials?.password
+              credentials?.password as string
             );
             if (isPasswordCorrect) return superUser;
             else throw new Error("Invalid credentials");
@@ -38,7 +38,7 @@ export const internalUserAuthOptions: NextAuthOptions = {
 
           if (!volunteer) throw new Error("User not found");
           const isPasswordCorrect = await volunteer.isPasswordCorrect(
-            credentials?.password
+            credentials?.password as string
           );
 
           if (!isPasswordCorrect) throw new Error("Invalid credentials");

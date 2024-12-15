@@ -4,9 +4,11 @@ import VolunteerModel from "@/models/volunteer.model";
 import { volunteerSchema } from "@/schema/volunteerSchema";
 import { uploadFileToCloudinary } from "@/config/cloudinary";
 import path from "path";
-import SuperUserModel from "@/models/superUser.model";
+import SuperUserModel from "@/models/superuser.model";
 import ClModel from "@/models/cl.model";
 import AclModel from "@/models/acl.model";
+import { initializeRedisClient } from "@/config/redis";
+
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -69,7 +71,8 @@ export async function POST(request: Request) {
         "Volunteer with similar contact details or roll no already exists",
         409
       );
-
+    
+    //Checking contact details in other models as well to avoid conflicts
     const [superUser, clUser, aclUser] = await Promise.all([
       SuperUserModel.findOne({ $or: [{ email }, { phone }] }),
       ClModel.findOne({ $or: [{ email }, { phone }] }),
@@ -122,6 +125,10 @@ export async function POST(request: Request) {
 
     if (!createdVolunteer)
       return sendResponse(false, "Failed to create volunteer", 500);
+
+    //Invalidate cache from redis
+    const client = await initializeRedisClient();
+    client.del("volunteers");
 
     return sendResponse(true, "Registration Successful", 200, createdVolunteer);
   } catch (error) {

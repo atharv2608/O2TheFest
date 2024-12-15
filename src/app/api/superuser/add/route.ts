@@ -2,7 +2,7 @@ import dbConnect from "@/lib/dbConnect";
 import { sendResponse } from "@/lib/sendResponse";
 import AclModel from "@/models/acl.model";
 import ClModel from "@/models/cl.model";
-import SuperUserModel from "@/models/superUser.model";
+import SuperUserModel from "@/models/superuser.model";
 import VolunteerModel from "@/models/volunteer.model";
 import { superUserSchema } from "@/schema/superUserSchema";
 import { NextRequest } from "next/server";
