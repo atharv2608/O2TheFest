@@ -5,7 +5,7 @@ export interface SuperUser extends Document {
     lastName: string;
     email: string;
     phone: string;
-    role: "superUser";
+    role: "superuser";
     canManageSuperUsers: boolean;
     password: string;
     isPasswordCorrect(password: string): Promise<boolean>;
@@ -37,8 +37,8 @@ const SuperUserSchema: Schema<SuperUser> = new Schema({
     role: {
         type: String,
         required: true,
-        default: "superUser", // Default is superuser, no need to change
-        enum: ["superUser"], // Role is strictly "superuser"
+        default: "superuser", // Default is superuser, no need to change
+        enum: ["superuser"], // Role is strictly "superuser"
     },
     canManageSuperUsers: {
         type: Boolean,
