@@ -11,6 +11,7 @@ export interface Committee extends Document {
     heads: mongoose.Types.ObjectId[]; 
     subheads: mongoose.Types.ObjectId[];  
     volunteers: mongoose.Types.ObjectId[];
+    events: mongoose.Types.ObjectId[];
 }
 
 const CommitteeSchema: Schema<Committee> = new Schema({
@@ -55,6 +56,10 @@ const CommitteeSchema: Schema<Committee> = new Schema({
     volunteers: [{
         type: Schema.Types.ObjectId,
         ref: "Volunteer",
+    }],
+    events: [{
+        type: Schema.Types.ObjectId,
+        ref: "Event"
     }]
 });
 

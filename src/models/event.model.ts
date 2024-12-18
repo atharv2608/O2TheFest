@@ -80,11 +80,9 @@ const EventSchema: Schema<Event> = new Schema({
     }],
     date: {
         type: Date,
-        required: [true, "Event date is required"],
     },
     time: {
         type: Date,
-        required: [true, "Event time is required"],
     },
 });
 
