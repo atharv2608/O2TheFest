@@ -6,8 +6,17 @@ import SuperUserModel from "@/models/superuser.model";
 import VolunteerModel from "@/models/volunteer.model";
 import { superUserSchema } from "@/schema/superUserSchema";
 import { NextRequest } from "next/server";
+import { authOptions } from "../../auth/[...nextauth]/options";
+import { getServerSession } from "next-auth";
+import { Role } from "@/types";
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user)
+    return sendResponse(false, "Unauthenticated request", 401);
+
+  if (session.user.role !== Role.SUPERUSER)
+    return sendResponse(false, "Unauthorised request", 403);
   await dbConnect();
   try {
     const data = await req.json();

@@ -4,8 +4,10 @@ import CommitteeModel from "@/models/committee.model";
 import EventModel from "@/models/event.model";
 import { eventSchema } from "@/schema/eventSchema";
 import mongoose from "mongoose";
+import { getServerSession, User } from "next-auth";
 import { NextRequest } from "next/server";
-
+import { authOptions } from "../../auth/[...nextauth]/options";
+import { Role } from "@/types";
 
 export async function POST(req: NextRequest) {
   await dbConnect();
@@ -35,6 +37,21 @@ export async function POST(req: NextRequest) {
       time,
     } = body;
 
+    //authorization
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user)
+      return sendResponse(false, "Unauthenticated request", 401);
+
+    const user = session.user as User;
+
+    if (
+      user.role !== Role.SUPERUSER && // Not a SUPERUSER
+      (!user.committee?.includes(committee_id) || // Committee ID not included
+        !(user.role === Role.HOD || user.role === Role.HEAD)) // Role is not HOD or HEAD
+    ) {
+      return sendResponse(false, "Unauthorized request", 403); // Throw unauthorized error
+    }
+
     // Fetch committee and perform event checks in a single call
     const [committee, existingEvents] = await Promise.all([
       CommitteeModel.findById(committee_id),
@@ -51,7 +68,12 @@ export async function POST(req: NextRequest) {
     if (!committee) return sendResponse(false, "Committee not found", 404);
 
     //Check if someone tries to add event in non event committee
-    if(!committee.isEventCommittee) return sendResponse(false, "Cannot add events in non event committee", 400);
+    if (!committee.isEventCommittee)
+      return sendResponse(
+        false,
+        "Cannot add events in non event committee",
+        400
+      );
 
     // Extract and categorize the existing events
     const eventWithSameTitle = existingEvents.find(
@@ -93,7 +115,7 @@ export async function POST(req: NextRequest) {
       date: date || null,
       time: time || null,
     });
-    
+
     if (!newEvent) return sendResponse(false, "Failed to create event", 500);
     committee.events.push(new mongoose.Types.ObjectId(newEvent._id as string));
     await committee.save();

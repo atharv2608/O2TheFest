@@ -2,10 +2,19 @@ import dbConnect from "@/lib/dbConnect";
 import { sendResponse } from "@/lib/sendResponse";
 import CommitteeModel from "@/models/committee.model";
 import { committeeSchema } from "@/schema/committeeSchema";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/options";
+import { Role } from "@/types";
 
 export async function POST(req: Request) {
-  await dbConnect();
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user)
+    return sendResponse(false, "Unauthenticated request", 401);
 
+  if (session.user.role !== Role.SUPERUSER)
+    return sendResponse(false, "Unauthorised request", 403);
+
+  await dbConnect();
   try {
     const body = await req.json();
     const validation = committeeSchema.safeParse(body);
@@ -54,7 +63,7 @@ export async function POST(req: Request) {
       numberOfVolunteers,
       isEventCommittee,
       numberOfEvents,
-      colorCode: colorCode || process.env.DEFAULT_COLOR_CODE as string, //default color code when no color code is specified
+      colorCode: colorCode || (process.env.DEFAULT_COLOR_CODE as string), //default color code when no color code is specified
     });
 
     const createdCommittee = await CommitteeModel.findById(newCommittee._id);
