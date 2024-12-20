@@ -4,7 +4,6 @@ export interface College extends Document {
   collegeName: string;
   location: string;
   ccCode: string;
-  maxCl: number;
   maxAcl: number;
   cl: mongoose.Types.ObjectId; // Reference to the CL  model
   acl: mongoose.Types.ObjectId[]; // References to ACL (Acl) models
@@ -29,11 +28,6 @@ const CollegeSchema: Schema<College> = new Schema({
     type: String,
     unique: true,
     trim: true,
-  },
-  maxCl: {
-    type: Number,
-    required: [true, "Maximum CL is required"],
-    min: [0, "Max CL cannot be negative"],
   },
   maxAcl: {
     type: Number,
@@ -64,23 +58,12 @@ const CollegeSchema: Schema<College> = new Schema({
   ],
   password: {
     type: String,
-    required: [true, "Password is required"],
     minlength: 6,
   },
 });
 
-CollegeSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-  next();
-});
 
-CollegeSchema.methods.isPasswordCorrect = async function (
-  password: string
-): Promise<boolean> {
-  return await bcrypt.compare(password, this.password);
-};
+
 const CollegeModel =
   (mongoose.models.College as mongoose.Model<College>) ||
   mongoose.model<College>("College", CollegeSchema);
