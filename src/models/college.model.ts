@@ -62,7 +62,20 @@ const CollegeSchema: Schema<College> = new Schema({
   },
 });
 
+CollegeSchema.pre("save", async function (next) {
+  if (this.password) {
+    if (!this.isModified("password")) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
+  }
+  next();
+});
 
+CollegeSchema.methods.isPasswordCorrect = async function (
+  password: string
+): Promise<boolean> {
+  return await bcrypt.compare(password, this.password);
+};
 
 const CollegeModel =
   (mongoose.models.College as mongoose.Model<College>) ||
