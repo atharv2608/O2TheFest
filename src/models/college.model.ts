@@ -10,6 +10,8 @@ export interface College extends Document {
   eventsRegistered: mongoose.Types.ObjectId[]; // Array of Event ObjectIds
   participants: mongoose.Types.ObjectId[]; // Array of Participant ObjectIds
   password: string; // External login is based on CC code and the password will be checked from here
+  hasApplied: boolean;
+  isApproved: boolean;
 }
 
 const CollegeSchema: Schema<College> = new Schema({
@@ -26,7 +28,6 @@ const CollegeSchema: Schema<College> = new Schema({
   },
   ccCode: {
     type: String,
-    unique: true,
     trim: true,
   },
   maxAcl: {
@@ -60,15 +61,14 @@ const CollegeSchema: Schema<College> = new Schema({
     type: String,
     minlength: 6,
   },
-});
-
-CollegeSchema.pre("save", async function (next) {
-  if (this.password) {
-    if (!this.isModified("password")) {
-      this.password = await bcrypt.hash(this.password, 10);
-    }
+  hasApplied:{
+    type: Boolean,
+    default: false,
+  },
+  isApproved: {
+    type: Boolean,
+    default: false,
   }
-  next();
 });
 
 CollegeSchema.methods.isPasswordCorrect = async function (
