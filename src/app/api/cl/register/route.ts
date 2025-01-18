@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     //Checking for exisiting CL and checking if college is present and not already applied
     const [existingCl, selectedCollege] = await Promise.all([
       ClModel.findOne({ $or: [{ email }, { phone }] }).lean(),
-      CollegeModel.findById(college).lean(),
+      CollegeModel.findById(college),
     ]);
 
     if (existingCl) {
@@ -82,12 +82,12 @@ export async function POST(req: Request) {
     //Update college with ccCode and password
     const totalClCount = await ClModel.countDocuments();
     const hashedPassword = await bcrypt.hash(password as string, 10);
-
+    const ccCode = `CC${String(totalClCount).padStart(3, "0")}`;
     await CollegeModel.updateOne(
       { _id: college },
       {
         $set: {
-          ccCode: `CC${String(totalClCount).padStart(3, "0")}`,
+          ccCode: selectedCollege.ccCode || ccCode,
           password: hashedPassword,
           hasApplied: true,
           cl: new mongoose.Types.ObjectId(newCl._id as string),
