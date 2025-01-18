@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     //Checking for exisiting CL and checking if college is present and not already applied
     const [existingCl, selectedCollege] = await Promise.all([
       ClModel.findOne({ $or: [{ email }, { phone }] }).lean(),
-      CollegeModel.findById(college),
+      CollegeModel.findById(college).lean(),
     ]);
 
     if (existingCl) {
@@ -94,8 +94,11 @@ export async function POST(req: Request) {
         },
       }
     );
-
-    return sendResponse(true, "CL created successfully", 201, newCl);
+    const clData = {
+      ...newCl.toObject(),
+      ccCode: selectedCollege.ccCode || ccCode,
+    }
+    return sendResponse(true, "CL created successfully", 201, clData);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "An unexpected error occurred.";
