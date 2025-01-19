@@ -1,4 +1,3 @@
-import { initializeRedisClient } from "@/config/redis";
 import dbConnect from "@/lib/dbConnect";
 import { sendResponse } from "@/lib/sendResponse";
 import VolunteerModel from "@/models/volunteer.model";
@@ -9,66 +8,51 @@ import { authOptions } from "../../auth/[...nextauth]/options";
 export async function GET() {
   await dbConnect();
   const session = await getServerSession(authOptions);
-  const user: User = session?.user as User;
+  // const user: User = session?.user as User;
   if (!session || !session.user) {
     return sendResponse(false, "Unauthenticated request", 401);
   }
   try {
-    const client = await initializeRedisClient();
-    const volunteersCache = await client.get("volunteers");
-    if (volunteersCache) {
-      return sendResponse(
-        true,
-        "Volunteers fetched successfully",
-        200,
-        JSON.parse(volunteersCache)
-      );
-    } else {
-      const volunteers = await VolunteerModel.aggregate([
-        {
-          $lookup: {
-            from: "committees",
-            localField: "preferredCommittees",
-            foreignField: "_id",
-            as: "preferredCommittees",
-          },
+    const volunteers = await VolunteerModel.aggregate([
+      {
+        $lookup: {
+          from: "committees",
+          localField: "preferredCommittees",
+          foreignField: "_id",
+          as: "preferredCommittees",
         },
-        {
-          $addFields: {
-            preferredCommittees: {
-              $map: {
-                input: "$preferredCommittees",
-                as: "committee",
-                in: {
-                  _id: "$$committee._id",
-                  committeeName: "$$committee.committeeName",
-                },
+      },
+      {
+        $addFields: {
+          preferredCommittees: {
+            $map: {
+              input: "$preferredCommittees",
+              as: "committee",
+              in: {
+                _id: "$$committee._id",
+                committeeName: "$$committee.committeeName",
               },
             },
           },
         },
-        {
-          $project: {
-            password: 0,
-            __v: 0,
-          },
+      },
+      {
+        $project: {
+          password: 0,
+          __v: 0,
         },
-      ]);
+      },
+    ]);
 
-      if (!volunteers) {
-        return sendResponse(false, "Volunteers not found", 404);
-      }
-
-      client.set("volunteers", JSON.stringify(volunteers));
-      client.expire("volunteers", 120);
-
-      return sendResponse(
-        true,
-        "Volunteers fetched successfully",
-        200,
-        volunteers
-      );
+    if (!volunteers) {
+      return sendResponse(false, "Volunteers not found", 404);
     }
+    return sendResponse(
+      true,
+      "Volunteers fetched successfully",
+      200,
+      volunteers
+    );
   } catch (error) {
     console.error("Error fetching volunteers: ", error);
     return sendResponse(false, "Error fetching volunteers", 500);

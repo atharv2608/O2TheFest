@@ -7,7 +7,6 @@ import path from "path";
 import SuperUserModel from "@/models/superuser.model";
 import ClModel from "@/models/cl.model";
 import AclModel from "@/models/acl.model";
-import { initializeRedisClient } from "@/config/redis";
 
 
 export async function POST(request: Request) {
@@ -31,7 +30,7 @@ export async function POST(request: Request) {
 
     //College ID file
     const file = formData.get("collegeId") as File;
-    if (!file) return sendResponse(false, "File is required", 400);
+    if (!file) return sendResponse(false, "ID card is required", 400);
 
     //Checking file type
     if (!file.type.startsWith("image/")) {
@@ -125,10 +124,6 @@ export async function POST(request: Request) {
 
     if (!createdVolunteer)
       return sendResponse(false, "Failed to create volunteer", 500);
-
-    //Invalidate cache from redis
-    const client = await initializeRedisClient();
-    client.del("volunteers");
 
     return sendResponse(true, "Registration Successful", 200, createdVolunteer);
   } catch (error) {
