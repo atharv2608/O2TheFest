@@ -1,4 +1,4 @@
-import { Course, Role, Year } from "@/types";
+import { Course, Role, UserType, Year } from "@/types";
 import mongoose, {Document, Schema} from "mongoose"
 import bcrypt from "bcrypt";
 
@@ -20,6 +20,7 @@ export interface Volunteer extends Document{
     approved: boolean;
     rejected: boolean;
     password: string;
+    userType: UserType.INTERNAL;
     isPasswordCorrect(password: string): Promise<boolean>
 }
 
@@ -114,6 +115,10 @@ const VolunteerSchema: Schema<Volunteer> = new Schema({
         type: String,
         required: [true, "Password is required"],
         minlength: 6,
+    },
+    userType: {
+        type: String,
+        default: UserType.INTERNAL,
     }
 })
 

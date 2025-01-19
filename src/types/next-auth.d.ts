@@ -10,6 +10,7 @@ declare module "next-auth" {
     committee?: string[] | null;
     canManageSuperUsers?: boolean;
     college?: string;
+    userType: string;
   }
 
   interface Session {
@@ -21,6 +22,7 @@ declare module "next-auth" {
       committee?: string[] | null;
       canManageSuperUsers?: boolean;
       college?: string;
+      userType: string;
     } & DefaultSession["user"];
   }
 }
@@ -34,5 +36,6 @@ declare module "next-auth/jwt" {
     committee?: string[] | null;
     canManageSuperUsers?: boolean;
     college?: string;
+    userType: string;
   }
 }

@@ -1,3 +1,4 @@
+import { UserType } from "@/types";
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface Cl extends Document {
@@ -8,6 +9,7 @@ export interface Cl extends Document {
   collegeId: string;
   role: "cl";
   college: mongoose.Types.ObjectId; // Reference to the college object;
+  userType: UserType.EXTERNAL
 }
 
 const ClSchema: Schema<Cl> = new Schema({
@@ -51,6 +53,10 @@ const ClSchema: Schema<Cl> = new Schema({
     ref: "College", 
     required: [true, "College is required"],
   },
+  userType:{
+    type: String,
+    default: UserType.EXTERNAL,
+  }
 });
 
 const ClModel = (mongoose.models.Cl as mongoose.Model<Cl>) || mongoose.model<Cl>("Cl", ClSchema);

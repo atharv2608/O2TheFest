@@ -33,4 +33,9 @@ export enum Level {
     NON_FLAGSHIP = "non-flagship",
 }
 
+export enum UserType {
+    INTERNAL = "internal",
+    EXTERNAL = "external",
+}
+
 

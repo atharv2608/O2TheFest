@@ -12,6 +12,7 @@ export interface College extends Document {
   password: string; // External login is based on CC code and the password will be checked from here
   hasApplied: boolean;
   isApproved: boolean;
+  isPasswordCorrect(password: string): Promise<boolean>;
 }
 
 const CollegeSchema: Schema<College> = new Schema({

@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcrypt";
+import { UserType } from "@/types";
 export interface SuperUser extends Document {
     firstName: string;
     lastName: string;
@@ -8,6 +9,7 @@ export interface SuperUser extends Document {
     role: "superuser";
     canManageSuperUsers: boolean;
     password: string;
+    userType: UserType.INTERNAL;
     isPasswordCorrect(password: string): Promise<boolean>;
 }
 
@@ -50,6 +52,10 @@ const SuperUserSchema: Schema<SuperUser> = new Schema({
         required: [true, "Password is required"],
         minlength: 6,
     },
+    userType: {
+        type: String,
+        default: UserType.INTERNAL,
+    }
 });
 
 SuperUserSchema.pre('save', async function(next){
