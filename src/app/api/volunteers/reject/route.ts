@@ -31,16 +31,35 @@ export async function PUT(req: Request) {
       return sendResponse(false, "One or more volunteer IDs are invalid", 400);
     }
 
-    // Update the `shortlisted` field for the specified volunteers
+    // Check if any of the volunteers are already shortlisted
+    const shortlistedVolunteers = await VolunteerModel.find({
+      _id: { $in: volunteerIds },
+      shortlisted: true
+    });
+
+    if (shortlistedVolunteers.length > 0) {
+      const shortlistedIds = shortlistedVolunteers.map(vol => vol._id);
+      return sendResponse(
+        false,
+        "Cannot reject shortlisted volunteers",
+        400,
+        { shortlistedVolunteerIds: shortlistedIds }
+      );
+    }
+
+    // Update the `rejected` field for the specified volunteers
     const result = await VolunteerModel.updateMany(
-      { _id: { $in: volunteerIds } },
-      { $set: { shortlisted: true, pending: false } },
+      { 
+        _id: { $in: volunteerIds },
+        shortlisted: false  // Additional check to ensure no shortlisted volunteers are rejected
+      },
+      { $set: { rejected: true } },
       { multi: true }
     );
 
     return sendResponse(
       true,
-      "Volunteers updated successfully",
+      "Volunteers rejected successfully",
       200,
       result
     );

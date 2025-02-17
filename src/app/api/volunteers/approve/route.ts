@@ -31,16 +31,16 @@ export async function PUT(req: Request) {
       return sendResponse(false, "One or more volunteer IDs are invalid", 400);
     }
 
-    // Update the `shortlisted` field for the specified volunteers
+    // Update the `approved` field for the specified volunteers
     const result = await VolunteerModel.updateMany(
       { _id: { $in: volunteerIds } },
-      { $set: { shortlisted: true, pending: false } },
+      { $set: { approved: true } },
       { multi: true }
     );
 
     return sendResponse(
       true,
-      "Volunteers updated successfully",
+      "Volunteers approved successfully",
       200,
       result
     );

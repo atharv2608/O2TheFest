@@ -14,7 +14,10 @@ export async function PUT(req: Request) {
     const session = await getServerSession(authOptions);
     const user = session?.user;
 
-    if (!user || ![Role.ADMIN_HEAD, Role.SUPERUSER].includes(user.role as Role)) {
+    if (
+      !user ||
+      ![Role.ADMIN_HEAD, Role.SUPERUSER].includes(user.role as Role)
+    ) {
       return sendResponse(false, "Unauthorized request", 403);
     }
 
@@ -31,19 +34,40 @@ export async function PUT(req: Request) {
       return sendResponse(false, "One or more volunteer IDs are invalid", 400);
     }
 
-    // Update the `shortlisted` field for the specified volunteers
+    // Find volunteers that have committee or role assignments
+    const volunteersToReset = await VolunteerModel.find({
+      _id: { $in: volunteerIds },
+    });
+
+    const resetVolunteerIds = volunteersToReset.map((vol) => vol._id);
+
+    if (resetVolunteerIds.length === 0) {
+      return sendResponse(
+        false,
+        "No volunteers found that require resetting",
+        400
+      );
+    }
+
+    // Update the volunteers
     const result = await VolunteerModel.updateMany(
-      { _id: { $in: volunteerIds } },
-      { $set: { shortlisted: true, pending: false } },
-      { multi: true }
+      { _id: { $in: resetVolunteerIds } },
+      {
+        $set: {
+          committee: [], // Reset committee to empty array
+          role: Role.VOLUNTEER, // Reset role to VOLUNTEER
+          pending: true, // Set pending to true
+          shortlisted: false, // Set shortlisted to false
+          approved: false, // Set approved to false
+          rejected: false, // Set rejected to false
+        },
+      }
     );
 
-    return sendResponse(
-      true,
-      "Volunteers updated successfully",
-      200,
-      result
-    );
+    return sendResponse(true, "Volunteers reset successfully", 200, {
+      resetVolunteerIds,
+      updateResult: result,
+    });
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "An unexpected error occurred.";
